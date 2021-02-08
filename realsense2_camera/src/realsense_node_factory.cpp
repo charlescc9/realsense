@@ -351,12 +351,16 @@ void RealSenseNodeFactory::initialize(const ros::WallTimerEvent &ignored)
 
 void RealSenseNodeFactory::dataMonitor(const ros::TimerEvent &e)
 {
+	ROS_ERROR("dataMonitor callback triggered");
+
 	if (!_realSenseNode || _data_timeout <= 0.0)
 	{
 		return;
 	}
 
 	ros::Time timeout = e.current_real - ros::Duration(_data_timeout);
+	ROS_ERROR_STREAM("e.current_real: " << e.current_real.toSec() << "." << e.current_real.toNSec());
+	ROS_ERROR_STREAM("_data_timeout: " << _data_timeout);
 
 	std::vector<std::string> stale_topics;
 	if (!std::dynamic_pointer_cast<BaseRealSenseNode>(_realSenseNode)->checkTopics(timeout, stale_topics))
