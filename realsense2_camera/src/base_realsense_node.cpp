@@ -926,9 +926,7 @@ void BaseRealSenseNode::addMonitoredTopic(const stream_index_pair& stream, Topic
 
 void BaseRealSenseNode::updateMonitoredTopic(const stream_index_pair& stream, Topic topic)
 {
-    ROS_ERROR_STREAM("updateMonitoredTopic above mutex");
     const std::lock_guard<std::mutex> lock(_topic_monitor_mutex);
-    ROS_ERROR_STREAM("updateMonitoredTopic below mutex");
     _topics[stream][topic].last_published = ros::Time::now();
 }
 
@@ -940,10 +938,11 @@ void BaseRealSenseNode::clearMonitoredTopic(const stream_index_pair& stream, Top
 
 bool BaseRealSenseNode::checkTopics(const ros::Time& timeout, std::vector<std::string>& stale_topics)
 {
-    ROS_ERROR_STREAM("checkTopics above mutex");
+    auto now = ros::Time::now();
+    ROS_ERROR_STREAM("checkTopics start: " << now.sec << "." << now.nsec);
+    
     bool ok = true;
     const std::lock_guard<std::mutex> lock(_topic_monitor_mutex);
-    ROS_ERROR_STREAM("checkTopics below mutex");
     for (const auto& stream: _topics)
     {
         for (const auto& topic: stream.second)
@@ -955,6 +954,9 @@ bool BaseRealSenseNode::checkTopics(const ros::Time& timeout, std::vector<std::s
             }
         }
     }
+
+    auto later = ros::Time::now();
+    ROS_ERROR_STREAM("checkTopics end: " << later.sec << "." << later.nsec);
 
     return ok;
 }
